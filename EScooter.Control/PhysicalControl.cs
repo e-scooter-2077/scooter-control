@@ -31,38 +31,32 @@ namespace EScooter.PhysicalControl
         public static async Task UpdateReportedProperties([ServiceBusTrigger("%TopicName%", "%ModifySub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
         {
             var logger = context.GetLogger(nameof(UpdateReportedProperties));
-            logger.LogInformation("Received something");
             var message = JsonConvert.DeserializeObject<EScooterDesiredReceived>(myQueueItem);
             var desiredDto = new EScooterDesiredDto(message.UpdateFrequency, message.MaxSpeed, message.StandbyThreshold);
             var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
-            var patch = CreateDesiredPatch(desiredDto);
-            await UpdateTwin(twin, patch);
+            await UpdateTwin(twin, CreateDesiredPatch(desiredDto));
             logger.LogInformation($"Properties updated {myQueueItem}");
         }
 
         [Function("LockScooter")]
         public static async Task LockScooter([ServiceBusTrigger("%TopicName%", "%LockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
         {
-            var logger = context.GetLogger(nameof(LockScooter));
-            var message = JsonConvert.DeserializeObject<EScooter>(myQueueItem);
-            await ModifyLockedProp(message.Id.ToString(), true);
-            logger.LogInformation($"Scooter {message.Id} locked");
+            await ModifyLockedProp(myQueueItem, true, context.GetLogger(nameof(LockScooter)));
         }
 
         [Function("UnlockScooter")]
         public static async Task UnlockScooter([ServiceBusTrigger("%TopicName%", "%UnlockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
         {
-            var logger = context.GetLogger(nameof(UnlockScooter));
-            var message = JsonConvert.DeserializeObject<EScooter>(myQueueItem);
-            await ModifyLockedProp(message.Id.ToString(), false);
-            logger.LogInformation($"Scooter {message.Id} unlocked");
+            await ModifyLockedProp(myQueueItem, false, context.GetLogger(nameof(UnlockScooter)));
         }
 
-        private static async Task ModifyLockedProp(string id, bool locked)
+        private static async Task ModifyLockedProp(string scooterJson, bool locked, ILogger logger)
         {
-            var twin = await _registryManager.GetTwinAsync(id);
+            var message = JsonConvert.DeserializeObject<EScooter>(scooterJson);
+            var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
             var patch = CreateDesiredPatch(new EScooterCommand(locked));
             await UpdateTwin(twin, patch);
+            logger.LogInformation($"Scooter {message.Id} {(locked ? "locked" : "unlocked")}");
         }
 
         private record Properties(object Desired);

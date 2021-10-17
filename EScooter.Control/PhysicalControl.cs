@@ -1,3 +1,4 @@
+using EScooter.Control;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
 using Microsoft.Azure.Functions.Worker;
@@ -6,71 +7,66 @@ using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
-namespace EScooter.PhysicalControl
+public static class PhysicalControl
 {
-    public record EScooter(Guid Id);
+    private static readonly RegistryManager _registryManager = RegistryManager.CreateFromConnectionString(Environment.GetEnvironmentVariable("HubRegistryConnectionString"));
 
-    public record EScooterCommand(bool Locked);
-
-    public record EScooterDesiredReceived(
-        Guid Id,
-        string UpdateFrequency,
-        double MaxSpeed,
-        int StandbyThreshold);
-
-    public record EScooterDesiredDto(
-         string UpdateFrequency,
-         double MaxSpeed,
-         int StandbyThreshold);
-
-    public static class PhysicalControl
+    /*[Function("UpdateReportedProperties")]
+    public static async Task UpdateReportedProperties([ServiceBusTrigger("%TopicName%", "%ModifySub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
     {
-        private static readonly RegistryManager _registryManager = RegistryManager.CreateFromConnectionString(Environment.GetEnvironmentVariable("HubRegistryConnectionString"));
+        var logger = context.GetLogger(nameof(UpdateReportedProperties));
+        var message = JsonConvert.DeserializeObject<EScooterDesiredReceived>(myQueueItem);
+        var desiredDto = new EScooterDesiredDto(message.UpdateFrequency, message.MaxSpeed, message.StandbyThreshold);
+        var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
+        await UpdateTwin(twin, CreateDesiredPatch(desiredDto));
+        logger.LogInformation($"Properties updated {myQueueItem}");
+    }
 
-        [Function("UpdateReportedProperties")]
-        public static async Task UpdateReportedProperties([ServiceBusTrigger("%TopicName%", "%ModifySub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
-        {
-            var logger = context.GetLogger(nameof(UpdateReportedProperties));
-            var message = JsonConvert.DeserializeObject<EScooterDesiredReceived>(myQueueItem);
-            var desiredDto = new EScooterDesiredDto(message.UpdateFrequency, message.MaxSpeed, message.StandbyThreshold);
-            var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
-            await UpdateTwin(twin, CreateDesiredPatch(desiredDto));
-            logger.LogInformation($"Properties updated {myQueueItem}");
-        }
+    [Function("LockScooter")]
+    public static async Task LockScooter([ServiceBusTrigger("%TopicName%", "%LockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
+    {
+        await ModifyLockedProp(myQueueItem, true, context.GetLogger(nameof(LockScooter)));
+    }
 
-        [Function("LockScooter")]
-        public static async Task LockScooter([ServiceBusTrigger("%TopicName%", "%LockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
-        {
-            await ModifyLockedProp(myQueueItem, true, context.GetLogger(nameof(LockScooter)));
-        }
+    [Function("UnlockScooter")]
+    public static async Task UnlockScooter([ServiceBusTrigger("%TopicName%", "%UnlockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
+    {
+        await ModifyLockedProp(myQueueItem, false, context.GetLogger(nameof(UnlockScooter)));
+    }
 
-        [Function("UnlockScooter")]
-        public static async Task UnlockScooter([ServiceBusTrigger("%TopicName%", "%UnlockSub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
-        {
-            await ModifyLockedProp(myQueueItem, false, context.GetLogger(nameof(UnlockScooter)));
-        }
+    private static async Task ModifyLockedProp(string scooterJson, bool locked, ILogger logger)
+    {
+        var message = JsonConvert.DeserializeObject<EScooter>(scooterJson);
+        var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
+        var patch = CreateDesiredPatch(new EScooterCommand(locked));
+        await UpdateTwin(twin, patch);
+        logger.LogInformation($"Scooter {message.Id} {(locked ? "locked" : "unlocked")}");
+    }*/
 
-        private static async Task ModifyLockedProp(string scooterJson, bool locked, ILogger logger)
-        {
-            var message = JsonConvert.DeserializeObject<EScooter>(scooterJson);
-            var twin = await _registryManager.GetTwinAsync(message.Id.ToString());
-            var patch = CreateDesiredPatch(new EScooterCommand(locked));
-            await UpdateTwin(twin, patch);
-            logger.LogInformation($"Scooter {message.Id} {(locked ? "locked" : "unlocked")}");
-        }
+    public static async Task UpdateReportedProperties(Guid id, EScooterDesiredDto desiredDto)
+    {
+        var twin = await _registryManager.GetTwinAsync(id.ToString());
+        await UpdateTwin(twin, CreateDesiredPatch(desiredDto));
+    }
 
-        private record Properties(object Desired);
+    public static async Task ModifyLockedProp(Guid id, bool locked)
+    {
+        var twin = await _registryManager.GetTwinAsync(id.ToString());
+        var patch = CreateDesiredPatch(new EScooterCommand(locked));
+        await UpdateTwin(twin, patch);
+    }
 
-        private record Patch(Properties Properties);
+    private record Properties(object Desired);
 
-        private static string CreateDesiredPatch(object obj)
-        {
-            return JsonConvert.SerializeObject(new Patch(new Properties(obj)));
-        }
+    private record Patch(Properties Properties);
 
-        private static async Task UpdateTwin(Twin twin, string patch)
-        {
-            await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
-        }
+    private static string CreateDesiredPatch(object obj)
+    {
+        return JsonConvert.SerializeObject(new Patch(new Properties(obj)));
+    }
+
+    private static async Task UpdateTwin(Twin twin, string patch)
+    {
+        await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
     }
 }

@@ -20,6 +20,13 @@ namespace EScooter.Control
 
     public record EScooter(Guid Id);
 
+    public record Tag(
+        int BatteryLevel,
+        double MaxSpeedOnPowerSave,
+        double DefaultMaxSpeed);
+
+    public record EScooterTags(Tag Control);
+
     public record EScooterCommand(bool Locked);
 
     public record EScooterDesiredDto(
@@ -30,11 +37,9 @@ namespace EScooter.Control
     public static class Control
     {
         private static readonly RegistryManager _registryManager = RegistryManager.CreateFromConnectionString(Environment.GetEnvironmentVariable("HubRegistryConnectionString"));
-        private static readonly int _powerSaveMode = 50;
-        private static readonly int _powerSaveMaxSpeed = 15;
-        private static readonly EventHubProducerClient _producerClient = new EventHubProducerClient(
-                                                                                Environment.GetEnvironmentVariable("EventHubConnectionString"),
-                                                                                Environment.GetEnvironmentVariable("EventHubName"));
+        private static readonly EventHubProducerClient _producerClient = new(
+                                                                            Environment.GetEnvironmentVariable("EventHubConnectionString"),
+                                                                            Environment.GetEnvironmentVariable("EventHubName"));
 
         [Function("UpdateOnNewTelemetry")]
         public static async Task UpdateOnNewTelemetry([ServiceBusTrigger("%TopicName%", "%TelemetrySub%", Connection = "ServiceBusConnectionString")] string myQueueItem, FunctionContext context)
@@ -47,13 +52,15 @@ namespace EScooter.Control
 
         private static async Task ApplyPolicyOnTelemetry(EScooterTelemetryReceived telemetryReceived, ILogger logger)
         {
-            var twin = await _registryManager.GetTwinAsync(telemetryReceived.Id.ToString()); // TODO: vorrei fosse un option
+            var twin = await _registryManager.GetTwinAsync(telemetryReceived.Id.ToString());
+
+            var tags = JsonConvert.DeserializeObject<EScooterTags>(twin.Tags.ToJson()).Control;
             var desiredDto = JsonConvert.DeserializeObject<EScooterDesiredDto>(twin.Properties.Desired.ToJson());
             var modified = false;
-            if (telemetryReceived.BatteryLevel <= _powerSaveMode)
+            if (telemetryReceived.BatteryLevel <= tags.BatteryLevel)
             {
                 modified = true;
-                desiredDto = desiredDto with { MaxSpeed = _powerSaveMaxSpeed };
+                desiredDto = desiredDto with { MaxSpeed = Math.Min(tags.MaxSpeedOnPowerSave, tags.DefaultMaxSpeed) };
             }
 
             if (modified)

@@ -1,8 +1,6 @@
 using EScooter.Control;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
@@ -52,8 +50,8 @@ public static class PhysicalControl
     public static async Task ModifyLockedProp(Guid id, bool locked)
     {
         var twin = await _registryManager.GetTwinAsync(id.ToString());
-        var patch = CreateDesiredPatch(new EScooterCommand(locked));
-        await UpdateTwin(twin, patch);
+        //var patch = CreateDesiredPatch(new EScooterCommand(locked));
+        //await UpdateTwin(twin, patch);
     }
 
     private record Properties(object Desired);

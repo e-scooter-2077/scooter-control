@@ -1,17 +1,10 @@
-﻿using EasyDesk.CleanArchitecture.Domain.Metamodel;
-using ScooterControlService.Domain.Values;
+﻿using ScooterControlService.LogicControl.Domain.Values;
 using System;
 
-namespace ScooterControlService.Domain
+namespace ScooterControlService.LogicControl.Domain
 {
-    public class Scooter : Entity
+    public class Scooter
     {
-        public Guid Id { get; }
-
-        public bool Locked { get; private set; }
-
-        public ScooterStatus Status { get; private set; }
-
         public Scooter(Guid id, bool locked, ScooterStatus status)
         {
             Id = id;
@@ -21,14 +14,11 @@ namespace ScooterControlService.Domain
 
         public Speed MaxSpeed => Speed.Min(Status.DesiredMaxSpeed, MaxSpeedByPowerMode);
 
-        public void Lock() => Locked = true;
+        public Guid Id { get; }
 
-        public void Unlock() => Locked = false;
+        public bool Locked { get; private set; }
 
-        public void SetBatteryLevel(BatteryLevel level)
-        {
-            Status = Status with { BatteryLevel = level };
-        }
+        public ScooterStatus Status { get; }
 
         private Speed MaxSpeedByPowerMode
         {
@@ -43,15 +33,9 @@ namespace ScooterControlService.Domain
             }
         }
 
-        public void SetDesiredMaxSpeed(Speed speed)
-        {
-            Status = Status with { DesiredMaxSpeed = speed };
-        }
+        public void Lock() => Locked = true;
 
-        public void SetStandby(bool isInStandby)
-        {
-            Status = Status with { IsInStandby = isInStandby };
-        }
+        public void Unlock() => Locked = false;
     }
 
     public static class ScooterFactory

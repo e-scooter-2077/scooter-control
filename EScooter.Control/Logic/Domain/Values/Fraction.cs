@@ -1,7 +1,7 @@
 ﻿using EasyDesk.CleanArchitecture.Domain.Metamodel.Values;
 using System;
 
-namespace ScooterControlService.Domain.Values
+namespace ScooterControlService.LogicControl.Domain.Values
 {
     public record Fraction : QuantityWrapper<double>
     {

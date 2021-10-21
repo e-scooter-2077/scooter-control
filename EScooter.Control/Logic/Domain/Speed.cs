@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-namespace ScooterControlService.Domain
+namespace ScooterControlService.LogicControl.Domain
 {
     public record Speed : QuantityWrapper<double>
     {

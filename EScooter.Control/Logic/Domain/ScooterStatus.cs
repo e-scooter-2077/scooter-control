@@ -1,4 +1,4 @@
-﻿namespace ScooterControlService.Domain
+﻿namespace ScooterControlService.LogicControl.Domain
 {
     public interface IScooterConfiguration
     {

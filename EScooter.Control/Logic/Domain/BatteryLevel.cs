@@ -1,7 +1,7 @@
 ﻿using EasyDesk.CleanArchitecture.Domain.Metamodel.Values;
-using ScooterControlService.Domain.Values;
+using ScooterControlService.LogicControl.Domain.Values;
 
-namespace ScooterControlService.Domain
+namespace ScooterControlService.LogicControl.Domain
 {
     public record BatteryLevel : ValueWrapper<Fraction>
     {

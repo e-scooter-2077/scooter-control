@@ -1,5 +1,7 @@
-﻿using Microsoft.Azure.Devices;
+﻿using EScooter.Control.Application;
+using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
+using Newtonsoft.Json;
 using ScooterControlService.LogicControl.Domain;
 using System;
 using System.Threading.Tasks;
@@ -25,11 +27,24 @@ namespace EScooter.Control.Web
             return FromTwin(twin);
         }
 
-        public Task SubmitScooterStatus(Scooter scooter) => throw new NotImplementedException();
+        public async Task SubmitScooterStatus(Scooter scooter)
+        {
+            var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
+            var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Locked, scooter.Status))));
+            await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
+
+            // TODO qui vanno aggiornati solo i tags?
+            throw new NotImplementedException();
+        }
+
+        private record TagDto(InnerTagDto Tags); // TODO lettera minuscola?
+
+        private record InnerTagDto(ScooterTag Control);
 
         private Scooter FromTwin(Twin scooterTwin)
         {
-            throw new NotImplementedException(); // TODO
+            var scooterTag = JsonConvert.DeserializeObject<ScooterTag>(scooterTwin.Tags.ToJson());
+            return new Scooter(new Guid(scooterTwin.DeviceId), scooterTag.Locked, scooterTag.Status);
         }
     }
 }

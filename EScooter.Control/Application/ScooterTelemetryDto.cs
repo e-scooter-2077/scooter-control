@@ -8,5 +8,6 @@ namespace EScooter.Control.Application
         double Speed,
         double Latitude,
         double Longitude,
-        bool Standby);
+        bool Standby,
+        IScooterTag Tag);
 }

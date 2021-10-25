@@ -36,6 +36,11 @@ namespace ScooterControlService.LogicControl.Domain
         public void Lock() => Locked = true;
 
         public void Unlock() => Locked = false;
+
+        public override string ToString()
+        {
+            return $"Scooter[{Id}] {{\nLocked = {Locked};\nMaxSpeed = {MaxSpeed};\nStatus = {Status};\n}}";
+        }
     }
 
     public static class ScooterFactory

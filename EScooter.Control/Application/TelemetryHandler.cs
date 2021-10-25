@@ -20,14 +20,24 @@ namespace EScooter.Control.Application
         [Function("UpdateOnNewTelemetry")]
         public async Task UpdateOnNewTelemetry([ServiceBusTrigger("%TopicName%", "%TelemetrySub%", Connection = "ServiceBusConnectionString")] string json, FunctionContext context)
         {
-            var scooter = FromTelemetryJson(json);
+            var telemetryReceived = TelemetryFromJson(json);
+
+            // TODO check if scooter should update, then if true:
+            var scooter = new Scooter(
+                telemetryReceived.Id,
+                telemetryReceived.Tag.Locked,
+                telemetryReceived.Tag.Status with
+                {
+                    BatteryLevel = BatteryLevel.FromFraction(
+                        Fraction.FromPercentage(telemetryReceived.BatteryLevel)),
+                    IsInStandby = telemetryReceived.Standby
+                });
             await _iotHub.SubmitScooterStatus(scooter);
         }
 
-        private Scooter FromTelemetryJson(string telemetryJson)
+        private ScooterTelemetryDto TelemetryFromJson(string telemetryJson)
         {
-            var telemetryReceived = JsonConvert.DeserializeObject<ScooterTelemetryDto>(telemetryJson);
-            return new Scooter(telemetryReceived.Id, telemetryReceived.Tag.Locked, telemetryReceived.Tag.Status with { BatteryLevel = BatteryLevel.FromFraction(Fraction.FromPercentage(telemetryReceived.BatteryLevel)), IsInStandby = telemetryReceived.Standby });
+            return JsonConvert.DeserializeObject<ScooterTelemetryDto>(telemetryJson);
         }
     }
 }

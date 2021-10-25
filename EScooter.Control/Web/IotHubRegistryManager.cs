@@ -27,19 +27,16 @@ namespace EScooter.Control.Web
             return FromTwin(twin);
         }
 
-        public async Task SubmitScooterStatus(Scooter scooter)
+        public Task SubmitScooterStatus(Scooter scooter)
         {
-            var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
-            var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Locked, scooter.Status))));
-            await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
-
-            // TODO qui vanno aggiornati solo i tags?
-            throw new NotImplementedException();
+            // var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
+            // var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Locked, scooter.Status))));
+            // await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
+            //// TODO qui vanno aggiornati solo i tags?
+            // throw new NotImplementedException();
+            Console.WriteLine(scooter);
+            return Task.CompletedTask;
         }
-
-        private record TagDto(InnerTagDto Tags); // TODO lettera minuscola?
-
-        private record InnerTagDto(ScooterTag Control);
 
         private Scooter FromTwin(Twin scooterTwin)
         {

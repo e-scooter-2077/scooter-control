@@ -19,6 +19,14 @@ namespace EScooter.Control
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.AddInMemoryCollection(new Dictionary<string, string>()
+                    {
+                        { "IotHubConfiguration:ConnectionString", Environment.GetEnvironmentVariable("HubRegistryConnectionString") },
+                        { "IotHubConfiguration:HostName", Environment.GetEnvironmentVariable("HubRegistryHostName") },
+                    });
+                })
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddConfigAsSingleton<IotHubConfiguration>(hostContext.Configuration);

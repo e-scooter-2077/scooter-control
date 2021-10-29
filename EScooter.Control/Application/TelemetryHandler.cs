@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Azure.Messaging.EventGrid;
 using EasyDesk.CleanArchitecture.Application.Events.ExternalEvents;
 using EScooter.Control.Web;
 using Microsoft.Azure.Functions.Worker;
+using Newtonsoft.Json;
 using ScooterControlService.LogicControl.Domain;
 using ScooterControlService.LogicControl.Domain.Values;
 using EventGridTriggerAttribute = Microsoft.Azure.Functions.Worker.EventGridTriggerAttribute;
@@ -31,9 +33,9 @@ namespace EScooter.Control.Application
         /// <param name="context">The context of the function.</param>
         /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
         [Function("UpdateOnNewTelemetry")]
-        public async Task UpdateOnNewTelemetry([EventGridTrigger] TelemetryEvent telemetry, FunctionContext context)
+        public async Task UpdateOnNewTelemetry([EventGridTrigger] EventGridEvent e, FunctionContext context)
         {
-            var telemetryDto = telemetry.Data;
+            var telemetryDto = JsonConvert.DeserializeObject<ScooterTelemetryDto>(e.Data.ToString());
 
             // TODO check if scooter should update, then if true:
             var scooter = new Scooter(
@@ -47,7 +49,5 @@ namespace EScooter.Control.Application
                 });
             await _iotHub.SubmitScooterStatus(scooter);
         }
-
-        public record TelemetryEvent(string Id, string Topic, string Subject, string EventType, ScooterTelemetryDto Data) : ExternalEvent;
     }
 }

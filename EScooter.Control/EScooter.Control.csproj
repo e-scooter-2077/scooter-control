@@ -10,6 +10,8 @@
     <PackageReference Include="EasyDesk.CleanArchitecture.Domain" Version="0.21.0" />
     <PackageReference Include="EasyDesk.CleanArchitecture.Infrastructure" Version="0.21.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="4.2.1" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.EventGrid" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.EventGrid" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.2.0" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.5.2" />
     <PackageReference Include="Microsoft.Azure.Devices" Version="1.35.0" />

@@ -29,7 +29,7 @@ namespace EScooter.Control.Application
         /// <summary>
         /// A function that when receiving an input event, submits to IotHub the new scooter.
         /// </summary>
-        /// <param name="telemetry">The event containing the telemetry data.</param>
+        /// <param name="e">The event containing the telemetry data.</param>
         /// <param name="context">The context of the function.</param>
         /// <returns><see cref="Task"/> representing the asynchronous operation.</returns>
         [Function("UpdateOnNewTelemetry")]

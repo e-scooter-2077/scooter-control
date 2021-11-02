@@ -2,7 +2,7 @@ name: Continuous Integration
 
 env:
   OUTPUT_DIR: publish
-  RELEASE_PREFIX: Azure Function Template
+  RELEASE_PREFIX: EScooter Control Service
   AZURE_FUNCTIONAPP_NAME: 'scooter-control'
 
 on:

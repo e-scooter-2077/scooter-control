@@ -38,6 +38,7 @@ jobs:
         uses: EasyDesk/action-dotnet-build@v1
         with:
           warnings-as-errors: true
+          path: 'EScooter.Control'
       - name: Test
         uses: EasyDesk/action-dotnet-test@v1
       - name: Publish

@@ -30,7 +30,7 @@ namespace EScooter.Control.Web
         public Task SubmitScooterStatus(Scooter scooter)
         {
             // var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
-            // var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Locked, scooter.Status))));
+            // var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Status, scooter.Locked))));
             // await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
             //// TODO qui vanno aggiornati solo i tags?
             // throw new NotImplementedException();
@@ -41,6 +41,10 @@ namespace EScooter.Control.Web
         private Scooter FromTwin(Twin scooterTwin)
         {
             var scooterTag = JsonConvert.DeserializeObject<ScooterTag>(scooterTwin.Tags.ToJson());
+
+            return new Scooter(new Guid(scooterTwin.DeviceId), true, new ScooterStatus(Speed.FromKilometersPerHour(30), BatteryLevel.Full(), Speed.FromKilometersPerHour(30), false, BatteryLevel.Full()));
+
+            // TODO: return true values
             return new Scooter(new Guid(scooterTwin.DeviceId), scooterTag.Locked, scooterTag.Status);
         }
     }

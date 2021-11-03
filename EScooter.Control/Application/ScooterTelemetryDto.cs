@@ -7,7 +7,6 @@ namespace EScooter.Control.Application
         SystemProperties SystemProperties,
         Body Body);
 
-
     public record SystemProperties([JsonProperty(PropertyName="iothub-connection-device-id")] Guid Id);
 
     public record Body(

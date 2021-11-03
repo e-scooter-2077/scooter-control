@@ -45,7 +45,7 @@ namespace EScooter.Control.Web
             return new Scooter(new Guid(scooterTwin.DeviceId), true, new ScooterStatus(Speed.FromKilometersPerHour(30), BatteryLevel.Full(), Speed.FromKilometersPerHour(30), false, BatteryLevel.Full()));
 
             // TODO: return true values
-            return new Scooter(new Guid(scooterTwin.DeviceId), scooterTag.Locked, scooterTag.Status);
+            // return new Scooter(new Guid(scooterTwin.DeviceId), scooterTag.Locked, scooterTag.Status);
         }
     }
 }

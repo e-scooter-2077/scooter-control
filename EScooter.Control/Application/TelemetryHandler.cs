@@ -3,6 +3,7 @@ using Azure.Messaging.EventGrid;
 using EasyDesk.CleanArchitecture.Application.Events.ExternalEvents;
 using EScooter.Control.Web;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ScooterControlService.LogicControl.Domain;
 using ScooterControlService.LogicControl.Domain.Values;
@@ -35,19 +36,25 @@ namespace EScooter.Control.Application
         [Function("UpdateOnNewTelemetry")]
         public async Task UpdateOnNewTelemetry([EventGridTrigger] EventGridEvent e, FunctionContext context)
         {
-            var telemetryDto = JsonConvert.DeserializeObject<ScooterTelemetryDto>(e.Data.ToString());
+            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, e.Data.ToString());
 
-            // TODO check if scooter should update, then if true:
-            var scooter = new Scooter(
-                telemetryDto.Id,
-                telemetryDto.Tag.Locked,
-                telemetryDto.Tag.Status with
-                {
-                    BatteryLevel = BatteryLevel.FromFraction(
-                        Fraction.FromPercentage(telemetryDto.BatteryLevel)),
-                    IsInStandby = telemetryDto.Standby
-                });
-            await _iotHub.SubmitScooterStatus(scooter);
+            var telemetryDto = JsonConvert.DeserializeObject<ScooterTelemetryDto>(e.Data.ToString());
+            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, telemetryDto.ToString());
+            var oldScooter = await _iotHub.FetchScooter(telemetryDto.SystemProperties.Id);
+
+            var newStatus = oldScooter.Status with
+            {
+                BatteryLevel = BatteryLevel.FromFraction(
+                    Fraction.FromPercentage(telemetryDto.Body.BatteryLevel))
+            };
+
+            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, "created new status with " + newStatus.BatteryLevel.AsFraction);
+            if (!newStatus.Equals(oldScooter.Status))
+            {
+                context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, "update");
+                var scooter = new Scooter(oldScooter.Id, oldScooter.Locked, newStatus);
+                await _iotHub.SubmitScooterStatus(scooter);
+            }
         }
     }
 }

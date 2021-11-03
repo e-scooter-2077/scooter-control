@@ -1,13 +1,18 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace EScooter.Control.Application
 {
     public record ScooterTelemetryDto(
-        Guid Id,
+        SystemProperties SystemProperties,
+        Body Body);
+
+
+    public record SystemProperties([JsonProperty(PropertyName="iothub-connection-device-id")] Guid Id);
+
+    public record Body(
         int BatteryLevel,
         double Speed,
         double Latitude,
-        double Longitude,
-        bool Standby,
-        IScooterTag Tag);
+        double Longitude);
 }

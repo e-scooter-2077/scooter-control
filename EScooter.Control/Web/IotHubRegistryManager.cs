@@ -41,10 +41,10 @@ namespace EScooter.Control.Web
                 Tags = new TagDto(
                         new ControlTagDto(
                             PowerSavingMaxSpeed: scooter.Status.PowerSavingMaxSpeed.KilometersPerHour,
-                            PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsFraction.Base100ValueRounded,
+                            PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsFraction.Base100Value,
                             DesiredMaxSpeed: scooter.Status.DesiredMaxSpeed.KilometersPerHour,
                             IsInStandby: scooter.Status.IsInStandby,
-                            BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100ValueRounded,
+                            BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100Value,
                             Locked: scooter.Locked)),
                 Reported = new UploadReportedDto(scooter.Locked)
             });

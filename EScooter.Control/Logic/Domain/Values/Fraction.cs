@@ -5,8 +5,6 @@ namespace ScooterControlService.LogicControl.Domain.Values
 {
     public record Fraction : QuantityWrapper<double>
     {
-        public double Base100ValueRounded => Math.Round(Base100Value, 2);
-
         public double Base100Value => Base1Value * 100;
 
         public double Base1Value => Value;

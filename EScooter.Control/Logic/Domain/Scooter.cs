@@ -3,7 +3,7 @@ using System;
 
 namespace ScooterControlService.LogicControl.Domain
 {
-    public class Scooter
+    public record Scooter
     {
         public Scooter(Guid id, bool locked, ScooterStatus status)
         {

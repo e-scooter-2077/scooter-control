@@ -2,7 +2,9 @@
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using ScooterControlService.LogicControl.Domain;
+using ScooterControlService.LogicControl.Domain.Values;
 using System;
 using System.Threading.Tasks;
 
@@ -16,6 +18,10 @@ namespace EScooter.Control.Web
 
         public IotHubRegistryManager(IotHubConfiguration iotHubConfiguration)
         {
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            };
             _iotHubConfiguration = iotHubConfiguration;
             _registryManager = RegistryManager.CreateFromConnectionString(_iotHubConfiguration.ConnectionString);
             _hostName = _iotHubConfiguration.HostName;
@@ -27,28 +33,36 @@ namespace EScooter.Control.Web
             return FromTwin(twin);
         }
 
-        public Task SubmitScooterStatus(Scooter scooter)
+        public async Task SubmitScooterStatus(Scooter scooter)
         {
-            // var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
-            // var patch = JsonConvert.SerializeObject(new TagDto(new InnerTagDto(new ScooterTag(scooter.Status, scooter.Locked))));
-            // var patch2 = JsonConvert.SerializeObject(new UploadReportedDto(scooter.Locked));
-            // patch = patch + ',' + patch2;
-            // await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
-            //// TODO qui vanno aggiornati solo i tags?
-            // throw new NotImplementedException();
-            Console.WriteLine(scooter);
-            return Task.CompletedTask;
+            var twin = await _registryManager.GetTwinAsync(scooter.Id.ToString());
+            var patch = JsonConvert.SerializeObject(new
+            {
+                Tags = new TagDto(
+                        new ControlTagDto(
+                            PowerSavingMaxSpeed: scooter.Status.PowerSavingMaxSpeed.KilometersPerHour,
+                            PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsFraction.Base100ValueRounded,
+                            DesiredMaxSpeed: scooter.Status.DesiredMaxSpeed.KilometersPerHour,
+                            IsInStandby: scooter.Status.IsInStandby,
+                            BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100ValueRounded,
+                            Locked: scooter.Locked)),
+                Reported = new UploadReportedDto(scooter.Locked)
+            });
+            await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
         }
 
         private Scooter FromTwin(Twin scooterTwin)
         {
-            var scooterTag = JsonConvert.DeserializeObject<ScooterTag>(scooterTwin.Tags.ToJson());
-
-            // TODO: set default values
-            return new Scooter(new Guid(scooterTwin.DeviceId), true, new ScooterStatus(Speed.FromKilometersPerHour(30), BatteryLevel.Full(), Speed.FromKilometersPerHour(30), false, BatteryLevel.Full()));
-
-            // TODO: return true values
-            // return new Scooter(new Guid(scooterTwin.DeviceId), scooterTag.Locked, scooterTag.Status);
+            var scooterTag = JsonConvert.DeserializeObject<TagDto>(scooterTwin.Tags.ToJson());
+            return new Scooter(
+                id: new Guid(scooterTwin.DeviceId),
+                locked: scooterTag.Control?.Locked ?? true,
+                status: new ScooterStatus(
+                    PowerSavingMaxSpeed: Speed.FromKilometersPerHour(scooterTag.Control?.PowerSavingMaxSpeed ?? 30),
+                    PowerSavingThreshold: BatteryLevel.FromFraction(Fraction.FromPercentage(scooterTag.Control?.PowerSavingThreshold ?? 20)),
+                    DesiredMaxSpeed: Speed.FromKilometersPerHour(scooterTag.Control?.DesiredMaxSpeed ?? 30),
+                    IsInStandby: scooterTag.Control?.IsInStandby ?? false,
+                    BatteryLevel: BatteryLevel.FromFraction(Fraction.FromPercentage(scooterTag.Control?.BatteryLevel ?? 100))));
         }
     }
 }

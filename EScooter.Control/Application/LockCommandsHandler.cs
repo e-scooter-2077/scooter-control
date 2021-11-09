@@ -53,7 +53,8 @@ namespace EScooter.Control.Application
         private async Task<Scooter> FromCommandJson(string json)
         {
             var idWrapper = JsonConvert.DeserializeObject<ScooterCommandDto>(json);
-            return await _iotHub.FetchScooter(idWrapper.Id);
+            var builder = await _iotHub.FetchScooter(idWrapper.Id);
+            return builder.CanBuild() ? builder.Build() : builder.BuildWithDefaults();
         }
     }
 }

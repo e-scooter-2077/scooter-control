@@ -1,4 +1,5 @@
 ﻿using EScooter.Control.Application;
+using EScooter.Control.Logic.Domain;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
@@ -27,7 +28,7 @@ namespace EScooter.Control.Web
             _hostName = _iotHubConfiguration.HostName;
         }
 
-        public async Task<Scooter> FetchScooter(Guid id)
+        public async Task<IScooterBuilder> FetchScooter(Guid id)
         {
             var twin = await _registryManager.GetTwinAsync(id.ToString());
             return FromTwin(twin);
@@ -51,18 +52,18 @@ namespace EScooter.Control.Web
             await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
         }
 
-        private Scooter FromTwin(Twin scooterTwin)
+        private IScooterBuilder FromTwin(Twin scooterTwin)
         {
             var scooterTag = JsonConvert.DeserializeObject<TagDto>(scooterTwin.Tags.ToJson());
-            return new Scooter(
-                id: new Guid(scooterTwin.DeviceId),
-                locked: scooterTag.Control?.Locked ?? true,
-                status: new ScooterStatus(
-                    PowerSavingMaxSpeed: Speed.FromKilometersPerHour(scooterTag.Control?.PowerSavingMaxSpeed ?? 30),
-                    PowerSavingThreshold: BatteryLevel.FromFraction(Fraction.FromPercentage(scooterTag.Control?.PowerSavingThreshold ?? 20)),
-                    DesiredMaxSpeed: Speed.FromKilometersPerHour(scooterTag.Control?.DesiredMaxSpeed ?? 30),
-                    IsInStandby: scooterTag.Control?.IsInStandby ?? false,
-                    BatteryLevel: BatteryLevel.FromFraction(Fraction.FromPercentage(scooterTag.Control?.BatteryLevel ?? 100))));
+            var builder = new ScooterBuilder();
+            builder.SetDeviceId(new Guid(scooterTwin.DeviceId));
+            builder.SetLocked(scooterTag.Control?.Locked);
+            builder.SetPowerSavingMaxSpeed(scooterTag.Control?.PowerSavingMaxSpeed);
+            builder.SetPowerSavingThreshold(scooterTag.Control?.PowerSavingThreshold);
+            builder.SetDesiredMaxSpeed(scooterTag.Control?.DesiredMaxSpeed);
+            builder.SetIsInStandby(scooterTag.Control?.IsInStandby);
+            builder.SetBatteryLevel(scooterTag.Control?.BatteryLevel);
+            return builder;
         }
     }
 }

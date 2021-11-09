@@ -3,5 +3,5 @@ using System;
 
 namespace EScooter.Control.Application
 {
-    public record UploadReportedDto(bool Locked);
+    public record UploadDesiredDto(bool Locked, string UpdateFrequency, double MaxSpeed);
 }

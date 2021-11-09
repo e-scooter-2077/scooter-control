@@ -46,7 +46,7 @@ namespace EScooter.Control.Web
                             IsInStandby: scooter.Status.IsInStandby,
                             BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100Value,
                             Locked: scooter.Locked)),
-                Reported = new UploadReportedDto(scooter.Locked)
+                Desired = new UploadDesiredDto(scooter.Locked, null, scooter.MaxSpeed.KilometersPerHour) // TODO insert string updateFrequency
             });
             await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
         }

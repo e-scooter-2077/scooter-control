@@ -92,7 +92,7 @@ namespace EScooter.Control.Web
 
         public void SetBatteryLevel(double? batteryLevel) => _batteryLevel = batteryLevel.AsOption();
 
-        public void SetUpdateFrequency(string updateFrequency) => _updateFrequency = updateFrequency;
+        public void SetUpdateFrequency(string updateFrequency) => _updateFrequency = updateFrequency.AsOption();
 
         public static IotHubScooterBuilder FromTwin(Twin scooterTwin)
         {

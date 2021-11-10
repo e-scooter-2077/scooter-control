@@ -1,5 +1,4 @@
 ﻿using ScooterControlService.LogicControl.Domain;
-using System;
 
 namespace EScooter.Control.Application
 {

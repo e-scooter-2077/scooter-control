@@ -1,11 +1,7 @@
 ﻿using ScooterControlService.LogicControl.Domain;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EScooter.Control.Logic.Domain
+namespace EScooter.Control.Logic
 {
     public interface IScooterBuilder : IBuilder<Scooter>
     {

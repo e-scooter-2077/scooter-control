@@ -1,11 +1,10 @@
 ﻿using EScooter.Control.Application;
-using EScooter.Control.Logic.Domain;
+using EScooter.Control.Logic;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ScooterControlService.LogicControl.Domain;
-using ScooterControlService.LogicControl.Domain.Values;
 using System;
 using System.Threading.Tasks;
 
@@ -15,7 +14,6 @@ namespace EScooter.Control.Web
     {
         private readonly IotHubConfiguration _iotHubConfiguration;
         private readonly RegistryManager _registryManager;
-        private readonly string _hostName;
 
         public IotHubRegistryManager(IotHubConfiguration iotHubConfiguration)
         {
@@ -25,13 +23,12 @@ namespace EScooter.Control.Web
             };
             _iotHubConfiguration = iotHubConfiguration;
             _registryManager = RegistryManager.CreateFromConnectionString(_iotHubConfiguration.ConnectionString);
-            _hostName = _iotHubConfiguration.HostName;
         }
 
-        public async Task<IScooterBuilder> FetchScooter(Guid id)
+        public async Task<IScooterBuilder> FetchScooterBuilder(Guid id)
         {
             var twin = await _registryManager.GetTwinAsync(id.ToString());
-            return FromTwin(twin);
+            return IotHubScooterBuilder.FromTwin(twin);
         }
 
         public async Task SubmitScooterStatus(Scooter scooter)
@@ -41,29 +38,16 @@ namespace EScooter.Control.Web
             {
                 Tags = new TagDto(
                         new ControlTagDto(
-                            PowerSavingMaxSpeed: scooter.Status.PowerSavingMaxSpeed.KilometersPerHour,
+                            PowerSavingMaxSpeed: scooter.Status.PowerSavingMaxSpeed.MetersPerSecond,
                             PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsFraction.Base100Value,
-                            DesiredMaxSpeed: scooter.Status.DesiredMaxSpeed.KilometersPerHour,
+                            DesiredMaxSpeed: scooter.Status.DesiredMaxSpeed.MetersPerSecond,
                             IsInStandby: scooter.Status.IsInStandby,
                             BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100Value,
-                            Locked: scooter.Locked)),
-                Desired = new UploadDesiredDto(scooter.Locked, null, scooter.MaxSpeed.KilometersPerHour) // TODO insert string updateFrequency
+                            Locked: scooter.Locked,
+                            UpdateFrequency: scooter.Status.UpdateFrequency.ToString())),
+                Desired = new UploadDesiredDto(scooter.Locked, scooter.Status.UpdateFrequency.ToString(), scooter.MaxSpeed.MetersPerSecond)
             });
             await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
-        }
-
-        private IScooterBuilder FromTwin(Twin scooterTwin)
-        {
-            var scooterTag = JsonConvert.DeserializeObject<TagDto>(scooterTwin.Tags.ToJson());
-            var builder = new ScooterBuilder();
-            builder.SetDeviceId(new Guid(scooterTwin.DeviceId));
-            builder.SetLocked(scooterTag.Control?.Locked);
-            builder.SetPowerSavingMaxSpeed(scooterTag.Control?.PowerSavingMaxSpeed);
-            builder.SetPowerSavingThreshold(scooterTag.Control?.PowerSavingThreshold);
-            builder.SetDesiredMaxSpeed(scooterTag.Control?.DesiredMaxSpeed);
-            builder.SetIsInStandby(scooterTag.Control?.IsInStandby);
-            builder.SetBatteryLevel(scooterTag.Control?.BatteryLevel);
-            return builder;
         }
     }
 }

@@ -42,17 +42,4 @@ namespace ScooterControlService.LogicControl.Domain
             return $"Scooter[{Id}] {{\nLocked = {Locked};\nMaxSpeed = {MaxSpeed};\nStatus = {Status};\n}}";
         }
     }
-
-    public static class ScooterFactory
-    {
-        public static Scooter CreateScooter(Guid id) => new(
-            id: id,
-            locked: true,
-            status: new ScooterStatus(
-                PowerSavingThreshold: BatteryLevel.FromFraction(Fraction.FromPercentage(30)),
-                PowerSavingMaxSpeed: Speed.FromKilometersPerHour(20),
-                BatteryLevel: BatteryLevel.Full(),
-                DesiredMaxSpeed: Speed.FromKilometersPerHour(30),
-                IsInStandby: false));
-    }
 }

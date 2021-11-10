@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Azure.Messaging.EventGrid;
-using EasyDesk.CleanArchitecture.Application.Events.ExternalEvents;
 using EScooter.Control.Web;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -40,19 +39,16 @@ namespace EScooter.Control.Application
 
             var telemetryDto = JsonConvert.DeserializeObject<ScooterTelemetryDto>(e.Data.ToString());
             context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, telemetryDto.ToString());
-            var builder = await _iotHub.FetchScooter(telemetryDto.SystemProperties.Id);
-            var usedDefault = !builder.CanBuild();
-            var oldScooter = usedDefault ? builder.BuildWithDefaults() : builder.Build();
+            var builder = await _iotHub.FetchScooterBuilder(telemetryDto.SystemProperties.Id);
+            var needsDefaults = !builder.CanBuild();
+            var oldScooter = needsDefaults ? builder.BuildWithDefaults() : builder.Build();
             var newStatus = oldScooter.Status with
             {
                 BatteryLevel = BatteryLevel.FromFraction(
                     Fraction.FromPercentage(telemetryDto.Body.BatteryLevel))
             };
-
-            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, "created new status with " + newStatus.BatteryLevel.AsFraction);
-            if (usedDefault || !newStatus.Equals(oldScooter.Status))
+            if (needsDefaults || !newStatus.Equals(oldScooter.Status))
             {
-                context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, "update");
                 var scooter = new Scooter(oldScooter.Id, oldScooter.Locked, newStatus);
                 await _iotHub.SubmitScooterStatus(scooter);
             }

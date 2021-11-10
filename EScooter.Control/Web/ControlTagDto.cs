@@ -1,7 +1,4 @@
-﻿using ScooterControlService.LogicControl.Domain;
-using System;
-
-namespace EScooter.Control.Application
+﻿namespace EScooter.Control.Application
 {
     public record ControlTagDto(
         bool? Locked,
@@ -9,7 +6,8 @@ namespace EScooter.Control.Application
         double? PowerSavingThreshold,
         double? DesiredMaxSpeed,
         bool? IsInStandby,
-        double? BatteryLevel);
+        double? BatteryLevel,
+        string UpdateFrequency);
 
     public record TagDto(ControlTagDto Control);
 }

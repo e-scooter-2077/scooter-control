@@ -1,4 +1,6 @@
-﻿namespace ScooterControlService.LogicControl.Domain
+﻿using EasyDesk.Tools.PrimitiveTypes.DateAndTime;
+
+namespace ScooterControlService.LogicControl.Domain
 {
     public interface IScooterConfiguration
     {
@@ -7,12 +9,12 @@
         BatteryLevel PowerSavingThreshold { get; }
 
         Speed DesiredMaxSpeed { get; }
+
+        Duration UpdateFrequency { get; }
     }
 
     public interface IScooterReportedStatus
     {
-        Speed DesiredMaxSpeed { get; }
-
         bool IsInStandby { get; }
     }
 
@@ -21,7 +23,8 @@
         BatteryLevel PowerSavingThreshold,
         Speed DesiredMaxSpeed,
         bool IsInStandby,
-        BatteryLevel BatteryLevel)
+        BatteryLevel BatteryLevel,
+        Duration UpdateFrequency)
         : IScooterConfiguration,
         IScooterReportedStatus;
 }

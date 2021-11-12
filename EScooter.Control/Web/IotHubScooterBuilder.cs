@@ -40,9 +40,9 @@ namespace EScooter.Control.Web
                 BuildScooter(
                     _id.Value,
                     _locked.OrElse(true),
-                    _powerSavingMaxSpeed.OrElse(30),
+                    _powerSavingMaxSpeed.OrElse(4),
                     _powerSavingThreshold.OrElse(20),
-                    _desiredMaxSpeed.OrElse(30),
+                    _desiredMaxSpeed.OrElse(8.3),
                     _isInStandby.OrElse(false),
                     _batteryLevel.OrElse(100),
                     _updateFrequency.OrElse("00:00:30")) :

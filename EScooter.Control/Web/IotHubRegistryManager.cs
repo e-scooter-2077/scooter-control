@@ -45,7 +45,7 @@ namespace EScooter.Control.Web
                             BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100Value,
                             Locked: scooter.Locked,
                             UpdateFrequency: scooter.Status.UpdateFrequency.ToString())),
-                Desired = new UploadDesiredDto(scooter.Locked, scooter.Status.UpdateFrequency.ToString(), scooter.MaxSpeed.MetersPerSecond)
+                Properties = new { Desired = new UploadDesiredDto(scooter.Locked, scooter.Status.UpdateFrequency.ToString(), scooter.MaxSpeed.MetersPerSecond) }
             });
             await _registryManager.UpdateTwinAsync(twin.DeviceId, patch, twin.ETag);
         }

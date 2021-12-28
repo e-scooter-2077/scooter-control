@@ -348,3 +348,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/EScooter.Control/Properties/ServiceDependencies/scooter-control - Zip Deploy
+/EScooter.Control/Properties/serviceDependencies.scooter-control - Zip Deploy.json

@@ -35,10 +35,7 @@ namespace EScooter.Control.Application
         [Function("UpdateOnNewTelemetry")]
         public async Task UpdateOnNewTelemetry([EventGridTrigger] EventGridEvent e, FunctionContext context)
         {
-            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, e.Data.ToString());
-
             var telemetryDto = JsonConvert.DeserializeObject<ScooterTelemetryDto>(e.Data.ToString());
-            context.GetLogger("UpdateOnNewTelemetry").Log(logLevel: LogLevel.Warning, telemetryDto.ToString());
             var builder = await _iotHub.FetchScooterBuilder(telemetryDto.SystemProperties.Id);
             var needsDefaults = !builder.CanBuild();
             var oldScooter = needsDefaults ? builder.BuildWithDefaults() : builder.Build();

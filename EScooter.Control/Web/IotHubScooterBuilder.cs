@@ -45,7 +45,7 @@ namespace EScooter.Control.Web
                     _desiredMaxSpeed.OrElse(8.3),
                     _isInStandby.OrElse(false),
                     _batteryLevel.OrElse(100),
-                    _updateFrequency.OrElse("00:00:30")) :
+                    _updateFrequency.OrElse("00:00:04")) :
             throw new InvalidOperationException();
 
         private Scooter BuildScooter(

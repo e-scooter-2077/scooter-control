@@ -5,6 +5,7 @@ env:
   RELEASE_PREFIX: EScooter Control Service
   AZURE_FUNCTIONAPP_NAME: 'scooter-control'
   PROJECT_NAME: 'EScooter.Control'
+
 on:
   workflow_dispatch:
   push:

@@ -18,5 +18,7 @@ namespace EScooter.Control.Logic
         public void SetIsInStandby(bool? isInStandby);
 
         public void SetBatteryLevel(double? batteryLevel);
+
+        public void SetUpdateFrequency(string frequency);
     }
 }

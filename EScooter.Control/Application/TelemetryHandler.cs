@@ -2,10 +2,8 @@
 using Azure.Messaging.EventGrid;
 using EScooter.Control.Web;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using ScooterControlService.LogicControl.Domain;
-using ScooterControlService.LogicControl.Domain.Values;
 using EventGridTriggerAttribute = Microsoft.Azure.Functions.Worker.EventGridTriggerAttribute;
 
 namespace EScooter.Control.Application
@@ -41,8 +39,7 @@ namespace EScooter.Control.Application
             var oldScooter = needsDefaults ? builder.BuildWithDefaults() : builder.Build();
             var newStatus = oldScooter.Status with
             {
-                BatteryLevel = BatteryLevel.FromFraction(
-                    Fraction.FromPercentage(telemetryDto.Body.BatteryLevel))
+                BatteryLevel = BatteryLevel.FromPercentage(telemetryDto.Body.BatteryLevel)
             };
             if (needsDefaults || !newStatus.Equals(oldScooter.Status))
             {

@@ -5,7 +5,6 @@ using EScooter.Control.Logic;
 using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using ScooterControlService.LogicControl.Domain;
-using ScooterControlService.LogicControl.Domain.Values;
 using System;
 using static EasyDesk.Tools.Options.OptionImports;
 
@@ -56,17 +55,17 @@ namespace EScooter.Control.Web
             double desiredMaxSpeed,
             bool isInStandby,
             double batteryLevel,
-            string updateFrequency) =>
-                new Scooter(
-                    id,
-                    locked,
-                    new ScooterStatus(
-                        PowerSavingMaxSpeed: Speed.FromMetersPerSecond(powerSavingMaxSpeed),
-                        PowerSavingThreshold: BatteryLevel.FromFraction(Fraction.FromPercentage(powerSavingThreshold)),
-                        DesiredMaxSpeed: Speed.FromMetersPerSecond(desiredMaxSpeed),
-                        IsInStandby: isInStandby,
-                        BatteryLevel: BatteryLevel.FromFraction(Fraction.FromPercentage(batteryLevel)),
-                        UpdateFrequency: Duration.Parse(updateFrequency)));
+            string updateFrequency)
+        {
+            var status = new ScooterStatus(
+                PowerSavingMaxSpeed: Speed.FromMetersPerSecond(powerSavingMaxSpeed),
+                PowerSavingThreshold: BatteryLevel.FromPercentage(powerSavingThreshold),
+                DesiredMaxSpeed: Speed.FromMetersPerSecond(desiredMaxSpeed),
+                IsInStandby: isInStandby,
+                BatteryLevel: BatteryLevel.FromPercentage(batteryLevel),
+                UpdateFrequency: Duration.Parse(updateFrequency));
+            return new Scooter(id, locked, status);
+        }
 
         public bool CanBuild() =>
             _id.IsPresent &&

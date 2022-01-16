@@ -1,12 +1,7 @@
 ﻿using EasyDesk.Tools.PrimitiveTypes.DateAndTime;
 using ScooterControlService.LogicControl.Domain;
-using ScooterControlService.LogicControl.Domain.Values;
 using Shouldly;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace EScooter.Control.UnitTests.Domain
@@ -18,10 +13,10 @@ namespace EScooter.Control.UnitTests.Domain
             locked: false,
             status: new ScooterStatus(
                 PowerSavingMaxSpeed: Speed.FromKilometersPerHour(15),
-                PowerSavingThreshold: BatteryLevel.FromFraction(Fraction.FromPercentage(30)),
+                PowerSavingThreshold: BatteryLevel.FromPercentage(30),
                 DesiredMaxSpeed: Speed.FromKilometersPerHour(30),
                 IsInStandby: false,
-                BatteryLevel: BatteryLevel.Full(),
+                BatteryLevel: BatteryLevel.Full,
                 UpdateFrequency: Duration.Parse("00:00:10")));
 
         [Fact]

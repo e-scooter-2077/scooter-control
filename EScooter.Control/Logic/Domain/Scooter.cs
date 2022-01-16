@@ -1,5 +1,4 @@
-﻿using ScooterControlService.LogicControl.Domain.Values;
-using System;
+﻿using System;
 
 namespace ScooterControlService.LogicControl.Domain
 {
@@ -24,7 +23,7 @@ namespace ScooterControlService.LogicControl.Domain
         {
             get
             {
-                if (Status.BatteryLevel.AsFraction <= Status.PowerSavingThreshold)
+                if (Status.BatteryLevel <= Status.PowerSavingThreshold)
                 {
                     return Status.PowerSavingMaxSpeed;
                 }

@@ -1,7 +1,6 @@
 ﻿using EScooter.Control.Application;
 using EScooter.Control.Logic;
 using Microsoft.Azure.Devices;
-using Microsoft.Azure.Devices.Shared;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ScooterControlService.LogicControl.Domain;
@@ -39,10 +38,10 @@ namespace EScooter.Control.Web
                 Tags = new TagDto(
                         new ControlTagDto(
                             PowerSavingMaxSpeed: scooter.Status.PowerSavingMaxSpeed.MetersPerSecond,
-                            PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsFraction.Base100Value,
+                            PowerSavingThreshold: scooter.Status.PowerSavingThreshold.AsPercentage,
                             DesiredMaxSpeed: scooter.Status.DesiredMaxSpeed.MetersPerSecond,
                             IsInStandby: scooter.Status.IsInStandby,
-                            BatteryLevel: scooter.Status.BatteryLevel.AsFraction.Base100Value,
+                            BatteryLevel: scooter.Status.BatteryLevel.AsPercentage,
                             Locked: scooter.Locked,
                             UpdateFrequency: scooter.Status.UpdateFrequency.ToString())),
                 Properties = new { Desired = new DesiredDto(scooter.Locked, scooter.Status.UpdateFrequency.ToString(), scooter.MaxSpeed.MetersPerSecond) }

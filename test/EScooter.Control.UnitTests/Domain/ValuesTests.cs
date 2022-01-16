@@ -18,19 +18,7 @@ namespace EScooter.Control.UnitTests.Domain
         }
 
         [Fact]
-        public void BatteryLevel_Constructor()
-        {
-            BatteryLevel.FromFraction(_fractionValue).AsFraction.ShouldBe(_fractionValue, _tolerance);
-        }
-
-        [Fact]
-        public void BatteryLevel_Base1ValueConversion()
-        {
-            BatteryLevel.FromPercentage(_percentageValue).AsFraction.ShouldBe(_percentageValue / 100, _tolerance);
-        }
-
-        [Fact]
-        public void BatteryLevel_Base100ValueConversion()
+        public void BatteryLevel_FromFraction()
         {
             BatteryLevel.FromFraction(_fractionValue).AsPercentage.ShouldBe(_fractionValue * 100, _tolerance);
         }

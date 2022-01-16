@@ -22,8 +22,6 @@ namespace ScooterControlService.LogicControl.Domain
 
         public double AsPercentage => Value;
 
-        public double AsFraction => Value / FullPercentage;
-
         public static BatteryLevel Empty { get; } = FromPercentage(EmptyPercentage);
 
         public static BatteryLevel Full { get; } = FromPercentage(FullPercentage);
